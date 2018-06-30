@@ -3,8 +3,7 @@ FROM golang
 COPY . /go/src/app
 WORKDIR /go/src/app
 
-RUN go get ./
-RUN go build
+RUN go install
 
 CMD app
 
