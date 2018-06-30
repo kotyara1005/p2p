@@ -6,5 +6,3 @@ WORKDIR /go/src/app
 RUN go install
 
 CMD app
-
-EXPOSE 5353
