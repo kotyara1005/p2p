@@ -110,11 +110,13 @@ func (app *App) handleConn(conn net.Conn) {
 		conn.SetReadDeadline(time.Now().Add(1 * time.Second))
 		bufLen, err := conn.Read(buf)
 		if err != nil {
-			log.Println("Receive from", conn.RemoteAddr(), err)
+			if !err.(net.Error).Timeout() {
+				log.Println("Receive from", conn.RemoteAddr(), err)
+			}
 			continue
 		}
-		remoteId := string(buf[:bufLen])
-		log.Println("Receive from", conn.RemoteAddr(), remoteId)
+		answer := string(buf[:bufLen])
+		log.Println("Receive from", conn.RemoteAddr(), answer)
 	}
 }
 
