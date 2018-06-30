@@ -87,12 +87,14 @@ func (app *App) GetSeq() uint64 {
 
 func (app *App) Connect(ip *net.IP) error {
 	log.Println("Trying connect to", ip)
-	conn, err := net.Dial("tcp", ip.String()+":"+app.Port)
+	conn, err := net.DialTimeout("tcp", ip.String()+":"+app.Port, time.Second)
 	if err != nil {
 		log.Println("Connection error", err)
 		return err
 	}
 	app.add(conn)
+	app.waitGroup.Add(1)
+	go app.handleConn(conn)
 	log.Println("Connected to", ip)
 	return nil
 }
@@ -110,8 +112,9 @@ func (app *App) handleConn(conn net.Conn) {
 		conn.SetReadDeadline(time.Now().Add(1 * time.Second))
 		bufLen, err := conn.Read(buf)
 		if err != nil {
-			if !err.(net.Error).Timeout() {
+			if !err.(net.Error).Temporary() {
 				log.Println("Receive from", conn.RemoteAddr(), err)
+				return
 			}
 			continue
 		}
@@ -143,8 +146,8 @@ func (app *App) Listen() {
 		}
 		conn, err := l.Accept()
 		if err != nil {
-			if !err.(net.Error).Timeout() {
-				log.Println(err)
+			if !err.(net.Error).Temporary() {
+				log.Fatal(err)
 			}
 			continue
 		}
