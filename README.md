@@ -15,4 +15,5 @@ $ go run ./main.go -h
    -mask string
      	Network mask (default "29")
    -port string
-     	Port for serving incoming notifications (default "53535")```
+     	Port for serving incoming notifications (default "53535")
+```
